@@ -1,6 +1,5 @@
 package com.deanofwalls.webpagetopdf.crud.service;
 
-import com.deanofwalls.webpagetopdf.selenium.PrintableWebPage;
 import com.github.git_leon.leonium.browsertools.factories.BrowserHandlerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
