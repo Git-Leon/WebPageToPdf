@@ -1,56 +1,33 @@
 package com.deanofwalls.webpagetopdf.selenium;
 
-import org.openqa.selenium.print.PrintOptions;
-import org.openqa.selenium.remote.RemoteWebDriver;
+import com.github.git_leon.leonium.DirectoryReference;
+import com.github.git_leon.leonium.browsertools.browserhandler.logging.BrowserHandlerLoggerInterface;
+import com.github.git_leon.leonium.browsertools.factories.BrowserHandlerFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class PrintableWebPage {
-    private WebDriverFactory webDriverFactory;
+    private BrowserHandlerFactory browserHandlerFactory;
     private String url;
-    private RemoteWebDriver driver;
+    private BrowserHandlerLoggerInterface driver;
 
-    public PrintableWebPage(WebDriverFactory webDriverFactory, String url) {
-        this.webDriverFactory = webDriverFactory;
+    public PrintableWebPage(BrowserHandlerFactory browserHandlerFactory, String url) {
+        this.browserHandlerFactory = browserHandlerFactory;
         this.url = url;
     }
 
-    public RemoteWebDriver getDriver() {
+    public BrowserHandlerLoggerInterface getBrowser() {
         if (driver == null) {
-            this.driver = webDriverFactory.create();
+            this.driver = browserHandlerFactory.getBrowserHandlerLogger();
         }
         return driver;
     }
 
     public Path printToFile(String outputDirectory, String outputFileName) {
-        final PrintOptions printOptions = new PrintOptions();
-        printOptions.setPageRanges("1");
-        getDriver().get(url);
-
-        try {
-            final Path storagePath = Paths.get(outputDirectory);
-            final File outputFile = new File(storagePath.toFile(), outputFileName);
-            final FileOutputStream outputStream = new FileOutputStream(outputFile);
-            final byte[] pdfContent = getDriver()
-                    .print(printOptions)
-                    .getContent()
-                    .getBytes();
-
-            Files.createDirectories(storagePath);
-            outputStream.write(pdfContent);
-            return outputFile.toPath();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                getDriver().quit();
-            } catch (Throwable t) {
-            }
-        }
+        final DirectoryReference directoryReference = DirectoryReference.TARGET_DIRECTORY;
+        final File directory = directoryReference.getFileFromDirectory("/screenshot/" + outputDirectory);
+        getBrowser().getOptions().SCREENSHOT_DIRECTORY.setValue(directory.toString());
+        return getBrowser().screenshot().getFile().toPath();
     }
 }
